@@ -1,20 +1,32 @@
+import * as React from "react";
+
 const Search = () => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const handleChange = (event: any) => {
+    setSearchTerm(event.target.value);
+  };
+
   return (
     <div>
       <label htmlFor="search">Search: </label>
-      <input id="search" type="text" />
+      <input id="search" type="text" onChange={handleChange} />
+      <p>
+        Searching for <strong>{searchTerm}</strong>.
+      </p>
     </div>
   );
 };
-const List = (props) => (
+
+const List = (props: any) => (
   <ul>
-    {props.list.map((item) => (
+    {props.list.map((item: any) => (
       <Item key={item.objectID} item={item} />
     ))}
   </ul>
 );
 
-const Item = (props) => (
+const Item = (props: any) => (
   <li>
     <span>
       <a href={props.item.url}>{props.item.title}</a>
