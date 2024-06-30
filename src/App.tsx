@@ -1,10 +1,13 @@
 import * as React from "react";
 
-const Search = () => {
+const Search = (props: any) => {
   const [searchTerm, setSearchTerm] = React.useState("");
 
   const handleChange = (event: any) => {
     setSearchTerm(event.target.value);
+
+    //C: is executed there as callback handler
+    props.onSearch(event);
   };
 
   return (
@@ -38,6 +41,12 @@ const Item = (props: any) => (
 );
 
 const App = () => {
+  //A: A callback handler gets introduced as event handler
+  const handleSearch = (event: any) => {
+    //D: calls back to the place it was introduced
+    console.log(event.target.value);
+  };
+
   const stories = [
     {
       title: "React",
@@ -61,10 +70,9 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <Search />
-
+      {/*B: is passed as function in props to another component*/}
+      <Search onSearch={handleSearch} />
       <hr />
-
       <List list={stories} />
     </div>
   );
