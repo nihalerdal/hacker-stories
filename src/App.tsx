@@ -1,7 +1,6 @@
 import * as React from "react";
 
 const App = () => {
-
   const stories = [
     {
       title: "React",
@@ -23,13 +22,13 @@ const App = () => {
 
   const [searchTerm, setSearchTerm] = React.useState("");
 
-  const handleSearch = (event:any) => {
-     setSearchTerm(event.target.value);
+  const handleSearch = (event: any) => {
+    setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.filter((story) => 
-     story.title.includes(searchTerm)
- );
+  const searchedStories = stories.filter((story) =>
+    story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
