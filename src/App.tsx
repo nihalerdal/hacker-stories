@@ -41,11 +41,7 @@ const App = () => {
   );
 };
 
-const Search = (props: any) => {
-
-  const {searchTerm, onSearch} = props;
-
-  return (
+const Search = ({searchTerm, onSearch}: any) => {
     <div>
       <label htmlFor="search">Search: </label>
       <input 
@@ -53,10 +49,8 @@ const Search = (props: any) => {
       type="text" 
       value={searchTerm}
       onChange={onSearch} />
-
-      <p>Searching for <strong>{props.searchTerm}</strong></p>
+      <p>Searching for <strong>{searchTerm}</strong></p>
     </div>
-  );
 };
 
 const List = (props: any) => (
