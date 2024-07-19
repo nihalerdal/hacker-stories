@@ -20,10 +20,15 @@ const App = () => {
     },
   ];
 
-  const [searchTerm, setSearchTerm] = React.useState("React");
+  const [searchTerm, setSearchTerm] = React.useState(
+    localStorage.getItem("search") || "React"
+  );
+
+  React.useEffect(() => {
+    localStorage.setItem("search", searchTerm);
+  }, [searchTerm]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
 
   const handleSearch = (event: any) => {
-    console.log(event.target.value);
     setSearchTerm(event.target.value);
   };
 
@@ -53,13 +58,13 @@ const Search = ({ searchTerm, onSearch }: any) => (
 
 const List = ({ list }: any) => (
   <ul>
-    {list.map((item: any) => (
+    {list.map(({ objectID, ...item }: any) => (
       <Item key={item.objectID} {...item} />
     ))}
   </ul>
 );
 
-const Item = ({ title, url, author, num_comments, points}: any) => (
+const Item = ({ title, url, author, num_comments, points }: any) => (
   <li>
     <span>
       <a href={url}>{title}</a>
