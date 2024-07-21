@@ -1,6 +1,19 @@
 import * as React from "react";
 
+  const useStorageState = (key:any, initialState:any) => {
+    const [value, setValue] = React.useState(
+      localStorage.getItem(key) || initialState
+    );
+
+    React.useEffect(() => {
+      localStorage.setItem(key, value);
+    }, [value, key]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
+
+    return [value, setValue];
+  };
+
 const App = () => {
+  
   const stories = [
     {
       title: "React",
@@ -20,13 +33,9 @@ const App = () => {
     },
   ];
 
-  const [searchTerm, setSearchTerm] = React.useState(
-    localStorage.getItem("search") || "React"
+  const [searchTerm, setSearchTerm] = useStorageState(
+    "search", "React"
   );
-
-  React.useEffect(() => {
-    localStorage.setItem("search", searchTerm);
-  }, [searchTerm]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
 
   const handleSearch = (event: any) => {
     setSearchTerm(event.target.value);
