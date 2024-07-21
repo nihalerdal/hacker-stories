@@ -13,7 +13,7 @@ import * as React from "react";
   };
 
 const App = () => {
-  
+
   const stories = [
     {
       title: "React",
@@ -56,13 +56,13 @@ const App = () => {
 };
 
 const Search = ({ searchTerm, onSearch }: any) => (
-  <div>
+  <>
     <label htmlFor="search">Search: </label>
     <input id="search" type="text" value={searchTerm} onChange={onSearch} />
     <p>
       Searching for <strong>{searchTerm}</strong>
     </p>
-  </div>
+  </>
 );
 
 const List = ({ list }: any) => (
