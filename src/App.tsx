@@ -13,7 +13,7 @@ const useStorageState = (key: any, initialState: any) => {
 };
 
 const App = () => {
-  const stories = [
+  const initialStories = [
     {
       title: "React",
       url: "https://reactjs.org/",
@@ -33,6 +33,12 @@ const App = () => {
   ];
 
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
+  const [stories, setStories] = React.useState(initialStories);
+
+  const handleRemoveStory = (item: any) => {
+    const newStories = stories.filter((story) => item.objectID !== story.objectID);
+    setStories(newStories);
+  };
 
   const handleSearch = (event: any) => {
     setSearchTerm(event.target.value);
@@ -41,6 +47,7 @@ const App = () => {
   const searchedStories = stories.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
 
   return (
     <div>
@@ -54,7 +61,7 @@ const App = () => {
       </InputWithLabel>
 
       <hr />
-      <List list={searchedStories} />
+      <List list={searchedStories} onRemoveItem={handleRemoveStory} />
     </div>
   );
 };
@@ -68,13 +75,14 @@ const InputWithLabel = ({
   children,
 }: any) => {
 
- const inputRef = React.useRef();
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
- React.useEffect(() => {
-   if (isFocused && inputRef.current) {
-     inputRef.current.focus();
-   }
- }, [isFocused]);
+
+  React.useEffect(() => {
+    if (isFocused && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isFocused]);
 
   return (
     <>
@@ -94,23 +102,28 @@ const InputWithLabel = ({
   );
 };
 
-const List = ({ list }: any) => (
+const List = ({ list, onRemoveItem }: any) => (
   <ul>
-    {list.map(({ objectID, ...item }: any) => (
-      <Item key={item.objectID} {...item} />
+    {list.map((item: any) => (
+      <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
     ))}
   </ul>
 );
 
-const Item = ({ title, url, author, num_comments, points }: any) => (
-  <li>
-    <span>
-      <a href={url}>{title}</a>
-    </span>
-    <span>{author}</span>
-    <span>{num_comments}</span>
-    <span>{points}</span>
-  </li>
-);
+const Item = ({ item, onRemoveItem }: any) =>  (
+    <li>
+      <span>
+        <a href={item.url}>{item.title}</a>
+      </span>
+      <span>{item.author}</span>
+      <span>{item.num_comments}</span>
+      <span>{item.points}</span>
+      <span>
+        <button type="button" onClick={()=> onRemoveItem(item)}>
+          Dismiss
+        </button>
+      </span>
+    </li>
+  );
 
 export default App;
