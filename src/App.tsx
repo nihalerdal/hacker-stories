@@ -1,19 +1,18 @@
 import * as React from "react";
 
-  const useStorageState = (key:any, initialState:any) => {
-    const [value, setValue] = React.useState(
-      localStorage.getItem(key) || initialState
-    );
+const useStorageState = (key: any, initialState: any) => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(key) || initialState
+  );
 
-    React.useEffect(() => {
-      localStorage.setItem(key, value);
-    }, [value, key]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
+  React.useEffect(() => {
+    localStorage.setItem(key, value);
+  }, [value, key]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
 
-    return [value, setValue];
-  };
+  return [value, setValue];
+};
 
 const App = () => {
-
   const stories = [
     {
       title: "React",
@@ -33,9 +32,7 @@ const App = () => {
     },
   ];
 
-  const [searchTerm, setSearchTerm] = useStorageState(
-    "search", "React"
-  );
+  const [searchTerm, setSearchTerm] = useStorageState("search", "React");
 
   const handleSearch = (event: any) => {
     setSearchTerm(event.target.value);
@@ -48,22 +45,54 @@ const App = () => {
   return (
     <div>
       <h1>My Hacker Stories</h1>
-      <Search onSearch={handleSearch} searchTerm={searchTerm} />
+      <InputWithLabel
+        id="search"
+        onInputChange={handleSearch}
+        value={searchTerm}
+      >
+        <strong>Search: </strong>
+      </InputWithLabel>
+
       <hr />
       <List list={searchedStories} />
     </div>
   );
 };
 
-const Search = ({ searchTerm, onSearch }: any) => (
-  <>
-    <label htmlFor="search">Search: </label>
-    <input id="search" type="text" value={searchTerm} onChange={onSearch} />
-    <p>
-      Searching for <strong>{searchTerm}</strong>
-    </p>
-  </>
-);
+const InputWithLabel = ({
+  id,
+  value,
+  type = "text",
+  onInputChange,
+  isFocused,
+  children,
+}: any) => {
+
+ const inputRef = React.useRef();
+
+ React.useEffect(() => {
+   if (isFocused && inputRef.current) {
+     inputRef.current.focus();
+   }
+ }, [isFocused]);
+
+  return (
+    <>
+      <label htmlFor={id}>{children}</label>
+      &nbsp;
+      <input
+        ref={inputRef}
+        id={id}
+        type={type}
+        value={value}
+        onChange={onInputChange}
+      />
+      <p>
+        Searching for <strong>{value}</strong>
+      </p>
+    </>
+  );
+};
 
 const List = ({ list }: any) => (
   <ul>
