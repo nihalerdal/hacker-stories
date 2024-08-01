@@ -32,11 +32,28 @@ const App = () => {
     },
   ];
 
+  const getAsyncStories = () =>
+    new Promise((resolve) =>
+      setTimeout(() => resolve({ data: { stories: initialStories } }), 2000)
+    );
+
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
-  const [stories, setStories] = React.useState(initialStories);
+  const [stories, setStories] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsLoading(true);
+
+    getAsyncStories().then((result) => {
+      setStories(result.data.stories);
+      setIsLoading(false);
+    });
+  }, []);
 
   const handleRemoveStory = (item: any) => {
-    const newStories = stories.filter((story) => item.objectID !== story.objectID);
+    const newStories = stories.filter(
+      (story) => item.objectID !== story.objectID
+    );
     setStories(newStories);
   };
 
@@ -47,7 +64,6 @@ const App = () => {
   const searchedStories = stories.filter((story) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
 
   return (
     <div>
@@ -59,9 +75,12 @@ const App = () => {
       >
         <strong>Search: </strong>
       </InputWithLabel>
-
       <hr />
-      <List list={searchedStories} onRemoveItem={handleRemoveStory} />
+      {isLoading ? (
+        <p>"Loading..."</p>
+      ) : (
+        <List list={searchedStories} onRemoveItem={handleRemoveStory} />
+      )}
     </div>
   );
 };
@@ -74,9 +93,7 @@ const InputWithLabel = ({
   isFocused,
   children,
 }: any) => {
-
   const inputRef = React.useRef<HTMLInputElement>(null);
-
 
   React.useEffect(() => {
     if (isFocused && inputRef.current) {
@@ -110,20 +127,20 @@ const List = ({ list, onRemoveItem }: any) => (
   </ul>
 );
 
-const Item = ({ item, onRemoveItem }: any) =>  (
-    <li>
-      <span>
-        <a href={item.url}>{item.title}</a>
-      </span>
-      <span>{item.author}</span>
-      <span>{item.num_comments}</span>
-      <span>{item.points}</span>
-      <span>
-        <button type="button" onClick={()=> onRemoveItem(item)}>
-          Dismiss
-        </button>
-      </span>
-    </li>
-  );
+const Item = ({ item, onRemoveItem }: any) => (
+  <li>
+    <span>
+      <a href={item.url}>{item.title}</a>
+    </span>
+    <span>{item.author}</span>
+    <span>{item.num_comments}</span>
+    <span>{item.points}</span>
+    <span>
+      <button type="button" onClick={() => onRemoveItem(item)}>
+        Dismiss
+      </button>
+    </span>
+  </li>
+);
 
 export default App;
