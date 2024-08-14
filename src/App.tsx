@@ -12,29 +12,7 @@ const useStorageState = (key: any, initialState: any) => {
   return [value, setValue];
 };
 
-const initialStories = [
-  {
-    title: "React",
-    url: "https://reactjs.org/",
-    author: "Jordan Walke",
-    num_comments: 3,
-    points: 4,
-    objectID: 0,
-  },
-  {
-    title: "Redux",
-    url: "https://redux.js.org/",
-    author: "Dan Abramov, Andrew Clark",
-    num_comments: 2,
-    points: 5,
-    objectID: 1,
-  },
-];
-
-const getAsyncStories = () =>
-  new Promise((resolve, reject) => setTimeout(reject, 2000));
-
-const storiesReducer = (state, action) => {
+const storiesReducer = (state: any, action: any) => {
   switch (action.type) {
     case "STORIES_FETCH_INIT":
       return {
@@ -59,13 +37,15 @@ const storiesReducer = (state, action) => {
       return {
         ...state,
         data: state.data.filter(
-          (story) => action.payload.objectID !== story.objectID
+          (story: any) => action.payload.objectID !== story.objectID
         ),
       };
     default:
       throw new Error();
   }
 };
+
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
@@ -78,14 +58,21 @@ const App = () => {
   React.useEffect(() => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    getAsyncStories()
-      .then((result: any) => {
+    fetch("${API_ENDPOINT}react")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
         dispatchStories({
           type: "STORIES_FETCH_SUCCESS",
-          payload: result.data.stories,
+          payload: data.hits,
         });
       })
-      .catch(() => dispatchStories({ type: "STORIES_FETCH_FAILURE" }));
+      .catch((error) => {
+        console.log(error); 
+        dispatchStories({
+          type: "STORIES_FETCH_FAILURE",
+        });
+      });
   }, []);
 
   const handleRemoveStory = (item: any) => {
@@ -96,7 +83,7 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.data.filter((story) =>
+  const searchedStories = stories.data.filter((story: any) =>
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
