@@ -56,9 +56,14 @@ const App = () => {
   });
 
   React.useEffect(() => {
+    // if `searchTerm` is not present
+    // e.g. null, empty string, undefined
+    // do nothing
+    // more generalized condition than searchTerm === ''
+    if (!searchTerm) return;
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    fetch("${API_ENDPOINT}react")
+    fetch("${API_ENDPOINT}${searchTerm}")
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
@@ -68,12 +73,12 @@ const App = () => {
         });
       })
       .catch((error) => {
-        console.log(error); 
+        console.log(error);
         dispatchStories({
           type: "STORIES_FETCH_FAILURE",
         });
       });
-  }, []);
+  }, [searchTerm]);
 
   const handleRemoveStory = (item: any) => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
@@ -83,9 +88,9 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.data.filter((story: any) =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const searchedStories = stories.data.filter((story: any) =>
+  //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
+  // );
 
   return (
     <div>
@@ -102,7 +107,7 @@ const App = () => {
       {stories.isLoading ? (
         <p>"Loading..."</p>
       ) : (
-        <List list={searchedStories} onRemoveItem={handleRemoveStory} />
+        <List list={stories.data} onRemoveItem={handleRemoveStory} />
       )}
     </div>
   );
