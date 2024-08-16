@@ -49,6 +49,7 @@ const API_ENDPOINT = "http://hn.algolia.com/api/v1/search?query=";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
+  const [url, setUrl] = React.useState("${API_ENDPOINT}${searchTerm}");
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
     isLoading: false,
@@ -56,14 +57,9 @@ const App = () => {
   });
 
   const handleFetchStories = React.useCallback(() => {
-    // if `searchTerm` is not present
-    // e.g. null, empty string, undefined
-    // do nothing
-    // more generalized condition than searchTerm === ''
-    if (!searchTerm) return;
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    fetch("${API_ENDPOINT}${searchTerm}")
+    fetch(url)
       .then((res) => {
         if (!res.ok) {
           throw new Error(`HTTP error! Status: ${res.status}`);
@@ -85,7 +81,7 @@ const App = () => {
           type: "STORIES_FETCH_FAILURE",
         });
       });
-  }, [searchTerm]);
+  }, [url]);
 
   React.useEffect(() => {
     handleFetchStories();
@@ -95,8 +91,12 @@ const App = () => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
   };
 
-  const handleSearch = (event: any) => {
+  const handleSearchInput = (event: any) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
   };
 
   return (
@@ -104,13 +104,20 @@ const App = () => {
       <h1>My Hacker Stories</h1>
       <InputWithLabel
         id="search"
-        onInputChange={handleSearch}
+        onInputChange={handleSearchInput}
         value={searchTerm}
       >
         <strong>Search: </strong>
       </InputWithLabel>
+
+      <button type="button" disabled={!searchTerm} onClick={handleSearchSubmit}>
+        Submit
+      </button>
+
       <hr />
+
       {stories.isError && <p>Something went wrong ...</p>}
+      
       {stories.isLoading ? (
         <p>"Loading..."</p>
       ) : (
