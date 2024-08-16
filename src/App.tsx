@@ -45,7 +45,7 @@ const storiesReducer = (state: any, action: any) => {
   }
 };
 
-const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
+const API_ENDPOINT = "http://hn.algolia.com/api/v1/search?query=";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
@@ -55,7 +55,7 @@ const App = () => {
     isError: false,
   });
 
-  React.useEffect(() => {
+  const handleFetchStories = React.useCallback(() => {
     // if `searchTerm` is not present
     // e.g. null, empty string, undefined
     // do nothing
@@ -64,7 +64,14 @@ const App = () => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
     fetch("${API_ENDPOINT}${searchTerm}")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        // Read response as text
+        return res.text();
+        return res.json();
+      })
       .then((data) => {
         console.log(data);
         dispatchStories({
@@ -80,6 +87,10 @@ const App = () => {
       });
   }, [searchTerm]);
 
+  React.useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
+
   const handleRemoveStory = (item: any) => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
   };
@@ -87,10 +98,6 @@ const App = () => {
   const handleSearch = (event: any) => {
     setSearchTerm(event.target.value);
   };
-
-  // const searchedStories = stories.data.filter((story: any) =>
-  //   story.title.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
 
   return (
     <div>
