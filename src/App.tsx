@@ -1,4 +1,5 @@
 import * as React from "react";
+import axios from "axios";
 
 const useStorageState = (key: any, initialState: any) => {
   const [value, setValue] = React.useState(
@@ -59,23 +60,15 @@ const App = () => {
   const handleFetchStories = React.useCallback(() => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
 
-    fetch(url)
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        // Read response as text
-        return res.text();
-        return res.json();
-      })
-      .then((data) => {
-        console.log(data);
+    axios
+    .get(url)
+      .then((res: any) => {
         dispatchStories({
           type: "STORIES_FETCH_SUCCESS",
-          payload: data.hits,
+          payload: res.data.hits,
         });
       })
-      .catch((error) => {
+      .catch((error: any) => {
         console.log(error);
         dispatchStories({
           type: "STORIES_FETCH_FAILURE",
@@ -117,7 +110,6 @@ const App = () => {
       <hr />
 
       {stories.isError && <p>Something went wrong ...</p>}
-      
       {stories.isLoading ? (
         <p>"Loading..."</p>
       ) : (
