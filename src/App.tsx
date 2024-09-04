@@ -1,6 +1,6 @@
 import * as React from "react";
 import axios from "axios";
-import "./App.css";
+import styles from "./App.module.css";
 
 const useStorageState = (key: any, initialState: any) => {
   const [value, setValue] = React.useState(
@@ -93,8 +93,8 @@ const App = () => {
   };
 
   return (
-    <div className="container">
-      <h1 className="headline-primary">My Hacker Stories</h1>
+    <div className={styles.container}>
+      <h1 className={styles.headlinePrimary}>My Hacker Stories</h1>
 
       <SearchForm
         searchTerm={searchTerm}
@@ -113,7 +113,7 @@ const App = () => {
 };
 
 const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
-  <form onSubmit={onSearchSubmit} className="search-form">
+  <form onSubmit={onSearchSubmit} className={styles.SearchForm}>
     <InputWithLabel
       id="search"
       value={searchTerm}
@@ -125,7 +125,7 @@ const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
     <button
       type="submit"
       disabled={!searchTerm}
-      className="button button_large"
+      className={"${styles.button} ${styles.buttonLarge}"}
     >
       Submit
     </button>
@@ -150,7 +150,7 @@ const InputWithLabel = ({
 
   return (
     <>
-      <label htmlFor={id} className="label">
+      <label htmlFor={id} className={styles.label}>
         {children}
       </label>
       &nbsp;
@@ -160,7 +160,7 @@ const InputWithLabel = ({
         type={type}
         value={value}
         onChange={onInputChange}
-        className="input"
+        className={styles.input}
       />
       <p>
         Searching for <strong>{value}</strong>
@@ -178,7 +178,7 @@ const List = ({ list, onRemoveItem }: any) => (
 );
 
 const Item = ({ item, onRemoveItem }: any) => (
-  <li className="item">
+  <li className={styles.item}>
     <span style={{ width: "40%" }}>
       <a href={item.url}>{item.title}</a>
     </span>
@@ -189,7 +189,7 @@ const Item = ({ item, onRemoveItem }: any) => (
       <button
         type="button"
         onClick={() => onRemoveItem(item)}
-        className="button button_small"
+        className={"${styles.button} ${styles.styles.buttonSmall}"}
       >
         Dismiss
       </button>
