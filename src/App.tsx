@@ -2,7 +2,78 @@ import * as React from "react";
 import axios from "axios";
 import styled from "styled-components";
 
-const useStorageState = (key: any, initialState: any) => {
+type Story = {
+  objectID: string;
+  url: string;
+  title: string;
+  author: string;
+  num_comments: number;
+  points: number;
+};
+
+type Stories = Story[];
+
+type StoriesState = {
+  data: Stories;
+  isLoading: boolean;
+  isError: boolean;
+};
+
+type StoriesFetchInitAction = {
+  type: "STORIES_FETCH_INIT";
+};
+type StoriesFetchSuccessAction = {
+  type: "STORIES_FETCH_SUCCESS";
+  payload: Stories;
+};
+type StoriesFetchFailureAction = {
+  type: "STORIES_FETCH_FAILURE";
+};
+type StoriesRemoveAction = {
+  type: "REMOVE_STORY";
+  payload: Story;
+};
+
+type StoriesAction =
+  | StoriesFetchInitAction
+  | StoriesFetchSuccessAction
+  | StoriesFetchFailureAction
+  | StoriesRemoveAction;
+
+  const storiesReducer = (state: StoriesState, action: StoriesAction) => {
+    switch (action.type) {
+      case "STORIES_FETCH_INIT":
+        return {
+          ...state,
+          isLoading: true,
+          isError: false,
+        };
+      case "STORIES_FETCH_SUCCESS":
+        return {
+          ...state,
+          isLoading: false,
+          isError: false,
+          data: action.payload,
+        };
+      case "STORIES_FETCH_FAILURE":
+        return {
+          ...state,
+          isLoading: false,
+          isError: true,
+        };
+      case "REMOVE_STORY":
+        return {
+          ...state,
+          data: state.data.filter(
+            (story) => action.payload.objectID !== story.objectID
+          ),
+        };
+      default:
+        throw new Error();
+    }
+  };
+
+const useStorageState = (key: string, initialState: string) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
   );
@@ -11,38 +82,7 @@ const useStorageState = (key: any, initialState: any) => {
   }, [value, key]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
   return [value, setValue];
 };
-const storiesReducer = (state: any, action: any) => {
-  switch (action.type) {
-    case "STORIES_FETCH_INIT":
-      return {
-        ...state,
-        isLoading: true,
-        isError: false,
-      };
-    case "STORIES_FETCH_SUCCESS":
-      return {
-        ...state,
-        isLoading: false,
-        isError: false,
-        data: action.payload,
-      };
-    case "STORIES_FETCH_FAILURE":
-      return {
-        ...state,
-        isLoading: false,
-        isError: true,
-      };
-    case "REMOVE_STORY":
-      return {
-        ...state,
-        data: state.data.filter(
-          (story: any) => action.payload.objectID !== story.objectID
-        ),
-      };
-    default:
-      throw new Error();
-  }
-};
+
 const StyledContainer = styled.div`
   height: 100vw;
   padding: 20px;
@@ -73,7 +113,7 @@ const StyledColumn = styled.span<StyledColumnProps>`
   a {
     color: inherit;
   }
-    
+
   width: ${(props) => props.width};
 `;
 
@@ -141,19 +181,20 @@ const App = () => {
   React.useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);
-  const handleRemoveStory = (item: any) => {
+
+  const handleRemoveStory = (item: Story) => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
   };
-  const handleSearchInput = (event: any) => {
+  const handleSearchInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
-  const handleSearchSubmit = (event: any) => {
+  const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   };
-  
-return (
-   <StyledContainer>
+
+  return (
+    <StyledContainer>
       <StyledHeadlinePrimary>My Hacker Stories</StyledHeadlinePrimary>
 
       <SearchForm
@@ -167,11 +208,17 @@ return (
       ) : (
         <List list={stories.data} onRemoveItem={handleRemoveStory} />
       )}
-      </StyledContainer>
+    </StyledContainer>
   );
 };
 
-const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
+type SearchFormTypeProps = {
+  searchTerm: string;
+  onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
+};
+
+const SearchForm: React.FC<SearchFormTypeProps> = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
   <StyledSearchForm onSubmit={onSearchSubmit}>
     <InputWithLabel
       id="search"
@@ -181,20 +228,29 @@ const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
     >
       <strong>Search:</strong>
     </InputWithLabel>
-      <StyledButtonLarge type="submit" disabled={!searchTerm}>
+    <StyledButtonLarge type="submit" disabled={!searchTerm}>
       Submit
-      </StyledButtonLarge>
+    </StyledButtonLarge>
   </StyledSearchForm>
 );
 
-const InputWithLabel = ({
+type InputWithLabelTypeProps = {
+  id: string;
+  value: string;
+  type?: string;
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isFocused?: boolean;
+  children: React.ReactNode;
+};
+
+const InputWithLabel: React.FC<InputWithLabelTypeProps> = ({
   id,
   value,
   type = "text",
   onInputChange,
   isFocused,
   children,
-}: any) => {
+}) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
   React.useEffect(() => {
     if (isFocused && inputRef.current) {
@@ -203,17 +259,26 @@ const InputWithLabel = ({
   }, [isFocused]);
 
   return (
-    <><StyledLabel htmlFor={id}>{children}</StyledLabel>
-      &nbsp; <StyledInput
+    <>
+      <StyledLabel htmlFor={id}>{children}</StyledLabel>
+      &nbsp;{" "}
+      <StyledInput
         ref={inputRef}
         id={id}
         type={type}
         value={value}
-        onChange={onInputChange}  />
-        </>
-         );
+        onChange={onInputChange}
+      />
+    </>
+  );
 };
-const List = ({ list, onRemoveItem }: any) => (
+
+type ListTypeProps = {
+  list: Stories;
+  onRemoveItem: (item: Story) => void;
+};
+
+const List: React.FC<ListTypeProps> = ({ list, onRemoveItem }) => (  //React.FC<ListTypeProps> this way works better with third-party tools
   <ul>
     {list.map((item: any) => (
       <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
@@ -221,7 +286,12 @@ const List = ({ list, onRemoveItem }: any) => (
   </ul>
 );
 
-const Item = ({ item, onRemoveItem }: any) => (
+type ItemTypeProps = {
+  item: Story;
+  onRemoveItem: (item: Story) => void;
+};
+
+const Item = ({ item, onRemoveItem }: ItemTypeProps) => (
   <StyledItem>
     <StyledColumn width="40%">
       <a href={item.url}>{item.title}</a>
