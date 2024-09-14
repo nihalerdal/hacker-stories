@@ -6,14 +6,11 @@ const useStorageState = (key: any, initialState: any) => {
   const [value, setValue] = React.useState(
     localStorage.getItem(key) || initialState
   );
-
   React.useEffect(() => {
     localStorage.setItem(key, value);
   }, [value, key]); //two arguments--> 1)a callback func that stores searchTerm value with 'search' key, 2) dependency array of variables. The func is called every time that changes.
-
   return [value, setValue];
 };
-
 const storiesReducer = (state: any, action: any) => {
   switch (action.type) {
     case "STORIES_FETCH_INIT":
@@ -73,7 +70,6 @@ const StyledColumn = styled.span<StyledColumnProps>`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-
   a {
     color: inherit;
   }
@@ -86,9 +82,7 @@ const StyledButton = styled.button`
   border: 1px solid #171212;
   padding: 5px;
   cursor: pointer;
-
   transition: all 0.1s ease-in;
-
   &:hover {
     background: #171212;
     color: #ffffff;
@@ -130,13 +124,10 @@ const App = () => {
     isLoading: false,
     isError: false,
   });
-
   const handleFetchStories = React.useCallback(async () => {
     dispatchStories({ type: "STORIES_FETCH_INIT" });
-
     try {
       const result = await axios.get(url);
-
       dispatchStories({
         type: "STORIES_FETCH_SUCCESS",
         payload: result.data.hits,
@@ -147,26 +138,22 @@ const App = () => {
       });
     }
   }, [url]);
-
   React.useEffect(() => {
     handleFetchStories();
   }, [handleFetchStories]);
-
   const handleRemoveStory = (item: any) => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
   };
-
   const handleSearchInput = (event: any) => {
     setSearchTerm(event.target.value);
   };
-
   const handleSearchSubmit = (event: any) => {
     setUrl(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   };
-
-  return (
-    <StyledContainer>
+  
+return (
+   <StyledContainer>
       <StyledHeadlinePrimary>My Hacker Stories</StyledHeadlinePrimary>
 
       <SearchForm
@@ -174,14 +161,13 @@ const App = () => {
         onSearchInput={handleSearchInput}
         onSearchSubmit={handleSearchSubmit}
       />
-
       {stories.isError && <p>Something went wrong ...</p>}
       {stories.isLoading ? (
         <p>"Loading..."</p>
       ) : (
         <List list={stories.data} onRemoveItem={handleRemoveStory} />
       )}
-    </StyledContainer>
+      </StyledContainer>
   );
 };
 
@@ -195,9 +181,9 @@ const SearchForm = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
     >
       <strong>Search:</strong>
     </InputWithLabel>
-    <StyledButtonLarge type="submit" disabled={!searchTerm}>
+      <StyledButtonLarge type="submit" disabled={!searchTerm}>
       Submit
-    </StyledButtonLarge>
+      </StyledButtonLarge>
   </StyledSearchForm>
 );
 
@@ -210,7 +196,6 @@ const InputWithLabel = ({
   children,
 }: any) => {
   const inputRef = React.useRef<HTMLInputElement>(null);
-
   React.useEffect(() => {
     if (isFocused && inputRef.current) {
       inputRef.current.focus();
@@ -218,20 +203,16 @@ const InputWithLabel = ({
   }, [isFocused]);
 
   return (
-    <>
-      <StyledLabel htmlFor={id}>{children}</StyledLabel>
-      &nbsp;
-      <StyledInput
+    <><StyledLabel htmlFor={id}>{children}</StyledLabel>
+      &nbsp; <StyledInput
         ref={inputRef}
         id={id}
         type={type}
         value={value}
-        onChange={onInputChange}
-      />
-    </>
-  );
+        onChange={onInputChange}  />
+        </>
+         );
 };
-
 const List = ({ list, onRemoveItem }: any) => (
   <ul>
     {list.map((item: any) => (
