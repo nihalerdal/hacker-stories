@@ -294,14 +294,19 @@ type ListTypeProps = {
 const List: React.FC<ListTypeProps> = (
   { list, onRemoveItem } //React.FC<ListTypeProps> this way works better with third-party tools
 ) => {
-  const [sort, setSort] = React.useState("NONE"); //displays in the order from the API
+  const [sort, setSort] = React.useState({
+    sortKey: "NONE",
+    isReverse: false,
+  });
 
   const handleSort = (sortKey: string) => {
-    setSort(sortKey);
+    const isReverse = sort.sortKey === sortKey && !sort.isReverse;
+    setSort({ sortKey: sortKey, isReverse: isReverse });
   };
 
-  const sortFunc = SORTS[sort];
-  const sortedList = sortFunc(list);
+  const sortFunc = SORTS[sort.sortKey];
+
+  const sortedList = sort.isReverse ? sortFunc(list).reverse() : sortFunc(list);
 
   return (
     <ul>
