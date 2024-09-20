@@ -1,6 +1,15 @@
 import * as React from "react";
 import axios from "axios";
 import styled from "styled-components";
+import { sortBy } from "lodash";
+
+const SORTS = {
+  NONE: (list) => list,
+  TITLE: (list) => sortBy(list, "title"),
+  AUTHOR: (list) => sortBy(list, "author"),
+  COMMENT: (list) => sortBy(list, "num_comments").reverse(),
+  POINT: (list) => sortBy(list, "points").reverse(),
+};
 
 type Story = {
   objectID: string;
@@ -40,38 +49,38 @@ type StoriesAction =
   | StoriesFetchFailureAction
   | StoriesRemoveAction;
 
-  const storiesReducer = (state: StoriesState, action: StoriesAction) => {
-    switch (action.type) {
-      case "STORIES_FETCH_INIT":
-        return {
-          ...state,
-          isLoading: true,
-          isError: false,
-        };
-      case "STORIES_FETCH_SUCCESS":
-        return {
-          ...state,
-          isLoading: false,
-          isError: false,
-          data: action.payload,
-        };
-      case "STORIES_FETCH_FAILURE":
-        return {
-          ...state,
-          isLoading: false,
-          isError: true,
-        };
-      case "REMOVE_STORY":
-        return {
-          ...state,
-          data: state.data.filter(
-            (story) => action.payload.objectID !== story.objectID
-          ),
-        };
-      default:
-        throw new Error();
-    }
-  };
+const storiesReducer = (state: StoriesState, action: StoriesAction) => {
+  switch (action.type) {
+    case "STORIES_FETCH_INIT":
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case "STORIES_FETCH_SUCCESS":
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: action.payload,
+      };
+    case "STORIES_FETCH_FAILURE":
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case "REMOVE_STORY":
+      return {
+        ...state,
+        data: state.data.filter(
+          (story) => action.payload.objectID !== story.objectID
+        ),
+      };
+    default:
+      throw new Error();
+  }
+};
 
 const useStorageState = (key: string, initialState: string) => {
   const [value, setValue] = React.useState(
@@ -218,7 +227,11 @@ type SearchFormTypeProps = {
   onSearchSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 };
 
-const SearchForm: React.FC<SearchFormTypeProps> = ({ searchTerm, onSearchInput, onSearchSubmit }) => (
+const SearchForm: React.FC<SearchFormTypeProps> = ({
+  searchTerm,
+  onSearchInput,
+  onSearchSubmit,
+}) => (
   <StyledSearchForm onSubmit={onSearchSubmit}>
     <InputWithLabel
       id="search"
@@ -278,13 +291,50 @@ type ListTypeProps = {
   onRemoveItem: (item: Story) => void;
 };
 
-const List: React.FC<ListTypeProps> = ({ list, onRemoveItem }) => (  //React.FC<ListTypeProps> this way works better with third-party tools
-  <ul>
-    {list.map((item: any) => (
-      <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
-    ))}
-  </ul>
-);
+const List: React.FC<ListTypeProps> = (
+  { list, onRemoveItem } //React.FC<ListTypeProps> this way works better with third-party tools
+) => {
+  const [sort, setSort] = React.useState("NONE"); //displays in the order from the API
+
+  const handleSort = (sortKey: string) => {
+    setSort(sortKey);
+  };
+
+  const sortFunc = SORTS[sort];
+  const sortedList = sortFunc(list);
+
+  return (
+    <ul>
+      <li style={{ display: "flex" }}>
+        <span style={{ width: "40%" }}>
+          <button type="button" onClick={() => handleSort("TITLE")}>
+            Title
+          </button>
+        </span>
+        <span style={{ width: "30%" }}>
+          <button type="button" onClick={() => handleSort("AUTHOR")}>
+            Author
+          </button>
+        </span>
+        <span style={{ width: "10%" }}>
+          <button type="button" onClick={() => handleSort("COMMENT")}>
+            Comments
+          </button>
+        </span>
+        <span style={{ width: "10%" }}>
+          <button type="button" onClick={() => handleSort("POINT")}>
+            Points
+          </button>
+        </span>
+        <span style={{ width: "10%" }}>Actions</span>
+      </li>
+
+      {sortedList.map((item: any) => (
+        <Item key={item.objectID} item={item} onRemoveItem={onRemoveItem} />
+      ))}
+    </ul>
+  );
+};
 
 type ItemTypeProps = {
   item: Story;
