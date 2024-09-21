@@ -166,7 +166,7 @@ const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
 const extractSearchTerm = (url) => url.replace(API_ENDPOINT, "");
-const getLastSearches = (urls) => urls.slice(-5).map(extractSearchTerm);
+const getLastSearches = (urls) => urls.slice(-6).slice(0, -1).map(extractSearchTerm);
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
