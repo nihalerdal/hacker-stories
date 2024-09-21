@@ -170,7 +170,7 @@ const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
-  const [urls, setUrls] = React.useState([`${API_ENDPOINT}${searchTerm}`]);
+  const [urls, setUrls] = React.useState(getUrl(searchTerm));
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
     isLoading: false,
@@ -198,18 +198,23 @@ const App = () => {
   const handleRemoveStory = (item: Story) => {
     dispatchStories({ type: "REMOVE_STORY", payload: item });
   };
+
   const handleSearchInput = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
+
+   const handleSearch = (searchTerm) => {
+     const url = getUrl(searchTerm);
+     setUrls(urls.concat(url));
+   };
+
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    const url = `${API_ENDPOINT}${searchTerm}`;
-    setUrl(urls.concat(url));
+  handleSearch(searchTerm)
     event.preventDefault();
   };
 
   const handleLastSearch = (searchTerm) => {
-      const url = `${API_ENDPOINT}${searchTerm}`;
-      setUrls(urls.concat(url))
+      handleSearch(searchTerm);
   };
   const lastSearches = getLastSearches(urls);
 
