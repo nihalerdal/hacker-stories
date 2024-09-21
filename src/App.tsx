@@ -166,7 +166,26 @@ const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
 const extractSearchTerm = (url) => url.replace(API_ENDPOINT, "");
-const getLastSearches = (urls) => urls.slice(-6).slice(0, -1).map(extractSearchTerm);
+
+const getLastSearches = (urls) =>
+  urls
+    .reduce((result, url, index) => {
+      const searchTerm = extractSearchTerm(url);
+
+      if (index === 0) {
+        return result.concat(searchTerm);
+      }
+
+      const previousSearchTerm = result[result.length - 1];
+
+      if (searchTerm === previousSearchTerm) {
+        return result;
+      } else {
+        return result.concat(searchTerm);
+      }
+    }, [])
+    .slice(-6)
+    .slice(0, -1);
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
@@ -203,18 +222,18 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-   const handleSearch = (searchTerm) => {
-     const url = getUrl(searchTerm);
-     setUrls(urls.concat(url));
-   };
+  const handleSearch = (searchTerm) => {
+    const url = getUrl(searchTerm);
+    setUrls(urls.concat(url));
+  };
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-  handleSearch(searchTerm)
+    handleSearch(searchTerm);
     event.preventDefault();
   };
 
   const handleLastSearch = (searchTerm) => {
-      handleSearch(searchTerm);
+    handleSearch(searchTerm);
   };
   const lastSearches = getLastSearches(urls);
 
@@ -229,7 +248,11 @@ const App = () => {
       />
 
       {lastSearches.map((searchTerm: string, index: number) => (
-        <button key={searchTerm + index} type="button" onClick={() => handleLastSearch(searchTerm)}>
+        <button
+          key={searchTerm + index}
+          type="button"
+          onClick={() => handleLastSearch(searchTerm)}
+        >
           {searchTerm}
         </button>
       ))}
