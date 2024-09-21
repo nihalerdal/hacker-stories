@@ -223,6 +223,7 @@ const App = () => {
   };
 
   const handleSearch = (searchTerm) => {
+    setSearchTerm(searchTerm);
     const url = getUrl(searchTerm);
     setUrls(urls.concat(url));
   };
