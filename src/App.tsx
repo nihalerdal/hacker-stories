@@ -247,16 +247,11 @@ const App = () => {
         onSearchInput={handleSearchInput}
         onSearchSubmit={handleSearchSubmit}
       />
+      <LastSearches
+        lastSearches={lastSearches}
+        onLastSearch={handleLastSearch}
+      />
 
-      {lastSearches.map((searchTerm: string, index: number) => (
-        <button
-          key={searchTerm + index}
-          type="button"
-          onClick={() => handleLastSearch(searchTerm)}
-        >
-          {searchTerm}
-        </button>
-      ))}
       {stories.isError && <p>Something went wrong ...</p>}
       {stories.isLoading ? (
         <p>"Loading..."</p>
@@ -292,6 +287,30 @@ const SearchForm: React.FC<SearchFormTypeProps> = ({
     </StyledButtonLarge>
   </StyledSearchForm>
 );
+
+type LastSearchesProps = {
+  lastSearches: string[];
+  onLastSearch: (searchTerm: string) => void;
+};
+
+const LastSearches: React.FC<LastSearchesProps> = ({
+  lastSearches,
+  onLastSearch,
+}) => {
+  return (
+    <>
+      {lastSearches.map((searchTerm: string, index: number) => (
+        <button
+          key={searchTerm + index}
+          type="button"
+          onClick={() => onLastSearch(searchTerm)}
+        >
+          {searchTerm}
+        </button>
+      ))}
+    </>
+  );
+};
 
 type InputWithLabelTypeProps = {
   id: string;
@@ -409,4 +428,4 @@ const Item = ({ item, onRemoveItem }: ItemTypeProps) => (
 );
 
 export default App;
-export { storiesReducer, SearchForm, InputWithLabel, List, Item };
+export { storiesReducer, SearchForm, InputWithLabel, List, Item, LastSearches };
