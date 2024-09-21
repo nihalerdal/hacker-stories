@@ -162,15 +162,15 @@ const StyledInput = styled.input`
   background-color: transparent;
   font-size: 24px;
 `;
+const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
+
+const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
 const extractSearchTerm = (url) => url.replace(API_ENDPOINT, "");
 const getLastSearches = (urls) => urls.slice(-5).map(extractSearchTerm);
-const getUrl = (searchTerm) => `${API_ENDPOINT}${searchTerm}`;
-
-const API_ENDPOINT = "https://hn.algolia.com/api/v1/search?query=";
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useStorageState("search", "React");
-  const [urls, setUrls] = React.useState(getUrl(searchTerm));
+  const [urls, setUrls] = React.useState([getUrl(searchTerm)]);
   const [stories, dispatchStories] = React.useReducer(storiesReducer, {
     data: [],
     isLoading: false,
@@ -228,8 +228,8 @@ const App = () => {
         onSearchSubmit={handleSearchSubmit}
       />
 
-      {lastSearches.map((searchTerm: string) => (
-        <button key={searchTerm} type="button" onClick={() => handleLastSearch(searchTerm)}>
+      {lastSearches.map((searchTerm: string, index: number) => (
+        <button key={searchTerm + index} type="button" onClick={() => handleLastSearch(searchTerm)}>
           {searchTerm}
         </button>
       ))}
